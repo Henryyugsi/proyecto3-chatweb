@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="./../css/estiloschat.css">
+        <link rel="stylesheet" type="text/css" href="./../css/normalize.css">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <section class="h-screen flex overflow-hidden">
+            <div class="bg-white w-3/12 p-6">
+                <div class="contenedormiperfil">
+                    <br>Mi Perfil:
+                    <div id="miperfil" name="nombre">
+                </div>
+                   
+                </div>
+                <div class="contenedorusuarios">
+                    <br>Contactos:
+                    <div id="usuarios" name="nombre">   
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-100 w-9/12" style="display:none;" id="dialog">
+                <div class="prueba1">
+                    <br>En linea con:
+                    <input type="text" readonly id="nombre" class="form-control">
+                </div>
+                <div class="prueba">
+                    <div id="mensajes"></div>
+                </div>
+                <div class="prueba2">
+                    <textarea type="text" id="mensaje" placeholder="Escribe" class="form-control" cols="2" rows="1"></textarea>
+                    <hr>
+                    <button id="enviar" class="btn btn-success">Enviar</button>
+                </div>
+            </div>
+        </section>
+        <script>
+            var socket = io()
+            //solicitar nombre
+            //var nick = prompt('Ingrese el nombre')
+            //Emitir el evento de que un nuevo usuario se ha conectado
+            //socket.emit('nuevouser',nick)
+            //Escuchar todo los tipo de eventos
+            //cliente conectado
+            socket.on('clienteconectado',(data)=>{
+                console.log("hasta aqui 3.0")
+                getUsuarios()
+                socket.emit('nuevouser',nick)
+            });
+            //escuchar el usuario desconectado
+            socket.on('usuariodesconectado',(data)=>{
+                //actualizar usuarios
+                getUsuarios()
+            })
+            //escuchar evento 'cargar todos los mensajes' para un usuario
+            socket.on('uploadallmensages',(data)=>{
+                getallmessajes()        
+            })
+            //escuchar evento 'get my profile'
+            socket.on('getmyprofile',(data)=>{
+                nick=data 
+                console.log("hasta aqui 2.0")  
+                socket.emit('nuevouser',nick)     
+            })
+            let sockid;
+            let misockid;
+            let minombre;
+            let nombreotro;
+            $(()=>{
+                //Accion cuando pulsa el boton enviar mensaje
+                $("#enviar").click(()=>{
+                    //Enviar mensaje privado
+                    let socketID = sockid;
+                    unirsocket=minombre+""+nombreotro;
+                    var data = {
+                        destinatarioID: socketID,
+                        tabla:unirsocket,
+                        nombreemite: minombre,
+                        mensaje: $("#mensaje").val()
+                    }
+                    //Emitir mensaje
+                    socket.emit('mensaprivado',data)
+                });
+                //detectar evento click de los <li>                
+                $(document).on("dblclick","div #usuarios li", function(){
+                    //Cambiar ventanas y abrir chat
+                    $("#dialoginit").fadeOut("fast");
+                    $("#dialog").fadeOut("slow");
+                    $("#dialog").fadeIn("slow");
+                    let socketID = $(this).attr('id')
+                    sockid=socketID
+                    $("#nombre").val($(this).attr('nombre'))  
+                    nombreotro=$(this).attr('nombre');
+                    //Cargar todos los mensajes de este chat
+                    var data = {
+                        socketID:misockid,
+                        tabla:minombre+""+nombreotro
+                    }
+                    //Emitir para cargar todos los mensajes
+                    socket.emit('cargartodosmensajes',data)
+                })
+            });
+            //Agregar Usuarios
+            function agregarUsuarios(data){
+                if(data.nombre===undefined){ 
+                }else{
+                    if(data.nombre===nick){
+                        $("#miperfil").append(`<li class="nav_items form-control" id='${data.id}' nombre='${data.nombre}'>${data.nombre}</li>`)
+                        misockid=data.id
+                        minombre=data.nombre
+                    }else{
+                        $("#usuarios").append(`<li class="nav_items form-control" id='${data.id}' nombre='${data.nombre}'>${data.nombre}</li>`)
+                    }
+                }   
+            }
+            function getUsuarios(){
+                $.get("http://localhost:3000/usuarios", (data)=>{
+                    $("#usuarios").empty();
+                    $("#miperfil").empty();
+                    data.forEach(agregarUsuarios)
+                });
+            }
+            //Agregar todo los mensajes
+            function updateallmessaje(data){
+                if(data.emisor===minombre){
+                    $("#mensajes").append(`<strong class="form-control flex  flex-row-reverse "> ${data.mensajeemisor} </strong> <br>`)
+                }else{
+                    $("#mensajes").append(`<strong class="form-control modifi"> ${data.mensajeemisor} </strong> <br>`)
+                }     
+            }
+            function getallmessajes(){
+                $.get("http://localhost:3000/allmessajes", (data)=>{
+                    $("#mensajes").empty();
+                    data.forEach(updateallmessaje)
+                });
+            }
+            //Llenar mi perfil
+            function updatemyprofile(data){
+                   
+            }
+            function getmyprofile(){
+                $.get("http://localhost:3000/myprofile", (data)=>{
+                    data.forIn(updatemyprofile)
+                });
+            }
+
+        </script>
+    </body>
+</html>

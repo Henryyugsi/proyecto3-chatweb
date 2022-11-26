@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+
+.inicio{
+    text-align: center;
+}
+
+.inicio_table{
+    padding-top: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5em;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.central{
+    background-color: #e5e5f7;
+    text-align: center;
+    border-radius: 10px;
+    width: 330px;
+    height: 500px;
+    padding: 40px;
+}
+.separacion{
+    padding: 30px;
+}
+.prueba{
+    overflow-y: auto;
+    height: 550px;
+    width: 1000px;
+    background-color: rgba(241, 250, 215, 0.575);
+}
+.prueba1{
+    height: 100px;
+    width: 1000px;
+    background-color: rgba(174, 168, 160, 0.581);
+}
+.prueba2{
+    height: 100px;
+    width: 1000px;
+    background-color: rgba(241, 250, 215, 0.575);
+}
+.modifi{
+    border: black 0.5px solid;
+    margin-right: 100px;
+    background-color: antiquewhite;
+    text-align: right;
+    width: max-content;
+}
+.modifi1{
+    text-align: right;
+    width: max-content;
+    flex:none;
+    flex-direction: row-reverse;
+}
+
+#miperfil{
+    background-color: rgb(240, 201, 149);
+    height: 100px;
+}
+.contenedorusuarios{
+    
+    background-color: rgb(149, 147, 144);
+    height: 800px;
+
+}
+.contenedormiperfil{
+   
+    background-color: rgb(240, 201, 149);
+    height: 100px;
+}
+
